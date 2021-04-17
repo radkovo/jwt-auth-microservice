@@ -10,7 +10,7 @@
 	<version>1.0-SNAPSHOT</version>
 	<description>A generic ready-to-use microservice for user registration, login and issuing JWTs with a REST interface</description>
 	<packaging>war</packaging>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>jakarta.platform</groupId>
@@ -25,11 +25,11 @@
 			<type>pom</type>
 			<scope>provided</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.nimbusds</groupId>
-            <artifactId>nimbus-jose-jwt</artifactId>
-            <version>7.1</version>
-        </dependency>
+		<dependency>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>nimbus-jose-jwt</artifactId>
+			<version>7.1</version>
+		</dependency>
 	</dependencies>
 	
 	<build>
@@ -43,7 +43,7 @@
 				<version>2.22.2</version>
 			</plugin>
 		</plugins>
-		<finalName>rest-jwt-login</finalName>
+		<finalName>jwt-auth</finalName>
 	</build>
 	
 	<properties>
