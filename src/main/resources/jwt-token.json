@@ -1,1 +1,1 @@
-{"iss":"airhacks","jti":"42","sub":"duke","upn":"duke","groups":["admin"]}
+{"iss":"jwtauthserv","jti":"25","sub":"user","upn":"user","groups":["users"]}

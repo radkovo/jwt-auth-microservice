@@ -9,19 +9,19 @@ package io.github.radkovo.jwtlogin.data;
  */
 public class Credentials
 {
-    public String login;
+    public String username;
     public String password;
     
-    public String getLogin()
+    public String getUsername()
     {
-        return login;
+        return username;
     }
-    
-    public void setLogin(String login)
+
+    public void setUsername(String username)
     {
-        this.login = login;
+        this.username = username;
     }
-    
+
     public String getPassword()
     {
         return password;
