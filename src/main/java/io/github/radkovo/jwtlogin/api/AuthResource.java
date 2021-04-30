@@ -25,6 +25,8 @@ import io.github.radkovo.jwtlogin.data.UserDTO;
 @Path("auth")
 public class AuthResource 
 {
+    private static final long TOKEN_DURATION = 7200; // token duration in seconds
+    
     @Inject
     UserService userService;
     
@@ -45,7 +47,9 @@ public class AuthResource
         {
             try
             {
-                String token = JwtTokenGenerator.generateJWTString("/jwt-token.json", credentials.getUsername());
+                User user = userService.getUser(credentials.getUsername()).orElse(null);
+                String token = JwtTokenGenerator.generateJWTString("/jwt-token.json", credentials.getUsername(), 
+                        TOKEN_DURATION, user.getRoles());
                 TokenResponse resp = new TokenResponse(token);
                 return Response.ok(resp).build();
             } catch (Exception e) {

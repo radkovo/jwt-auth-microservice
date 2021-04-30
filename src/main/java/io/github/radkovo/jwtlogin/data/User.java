@@ -11,7 +11,11 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Table;
+
+import java.util.Set;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 
 /**
  * 
@@ -38,6 +42,10 @@ public class User
     private String name;
     
     private String email;
+    
+    @ElementCollection
+    private Set<String> roles;
+    
 
     public User()
     {
@@ -49,6 +57,7 @@ public class User
         this.password = password;
         this.name = name;
         this.email = email;
+        this.roles = Set.of();
     }
 
     public long getId()
@@ -99,6 +108,16 @@ public class User
     public void setEmail(String email)
     {
         this.email = email;
+    }
+
+    public Set<String> getRoles()
+    {
+        return roles;
+    }
+
+    public void setRoles(Set<String> roles)
+    {
+        this.roles = roles;
     }
     
 }

@@ -10,6 +10,7 @@ import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.util.Set;
 
 import org.eclipse.microprofile.jwt.Claims;
 
@@ -26,7 +27,7 @@ import net.minidev.json.parser.JSONParser;
  */
 public class JwtTokenGenerator {
 
-    public static String generateJWTString(String jsonResource, String username) throws Exception {
+    public static String generateJWTString(String jsonResource, String username, long duration, Set<String> roles) throws Exception {
         byte[] byteBuffer = new byte[16384];
         currentThread().getContextClassLoader()
                        .getResource(jsonResource)
@@ -37,13 +38,14 @@ public class JwtTokenGenerator {
         JSONObject jwtJson = (JSONObject) parser.parse(byteBuffer);
         
         long currentTimeInSecs = (System.currentTimeMillis() / 1000);
-        long expirationTime = currentTimeInSecs + 1000;
+        long expirationTime = currentTimeInSecs + duration;
        
         jwtJson.put(Claims.iat.name(), currentTimeInSecs);
         jwtJson.put(Claims.auth_time.name(), currentTimeInSecs);
         jwtJson.put(Claims.exp.name(), expirationTime);
         jwtJson.put(Claims.sub.name(), username);
         jwtJson.put(Claims.upn.name(), username);
+        jwtJson.put(Claims.groups.name(), roles);
         
         SignedJWT signedJWT = new SignedJWT(new JWSHeader
                                             .Builder(RS256)

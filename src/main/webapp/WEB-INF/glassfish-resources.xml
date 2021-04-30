@@ -9,6 +9,6 @@
                           datasource-classname="org.h2.jdbcx.JdbcDataSource">
         <property name="user" value="sa"/>
         <property name="password" value=""/>
-        <property name="url" value="jdbc:h2:mem:restapiDB"/>
+        <property name="url" value="jdbc:h2:file:/opt/storage/users"/>
     </jdbc-connection-pool>
 </resources>

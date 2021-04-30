@@ -1,6 +1,8 @@
 package io.github.radkovo.jwtlogin.dao;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -9,6 +11,9 @@ import javax.persistence.PersistenceContext;
 import javax.security.enterprise.identitystore.Pbkdf2PasswordHash;
 import javax.transaction.Transactional;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import io.github.radkovo.jwtlogin.Roles;
 import io.github.radkovo.jwtlogin.data.User;
 import io.github.radkovo.jwtlogin.data.UserDTO;
 
@@ -19,9 +24,14 @@ import io.github.radkovo.jwtlogin.data.UserDTO;
 @Stateless
 public class UserService 
 {
-
+    private static final Set<String> defaultRoles = Set.of(Roles.USER);
+    
     @PersistenceContext(unitName = "usersPU")
     EntityManager em;
+    
+    @Inject
+    @ConfigProperty(name = "jwtauth.admin.password")
+    String defaultAdminPassword;
     
     @Inject
     Pbkdf2PasswordHash passwordHasher;
@@ -32,9 +42,27 @@ public class UserService
         User newUser = new User(dto.getUsername(),
                 passwordHasher.generate(dto.getPassword().toCharArray()),
                 dto.getName(), dto.getEmail());
+        newUser.setRoles(defaultRoles);
         em.persist(newUser);
         em.flush();
         return newUser;
+    }
+    
+    @Transactional
+    public User createDefaultAdmin()
+    {
+        User newUser = new User("admin",
+                passwordHasher.generate(defaultAdminPassword.toCharArray()),
+                "", "");
+        newUser.setRoles(Set.of(Roles.ADMIN));
+        em.persist(newUser);
+        em.flush();
+        return newUser;
+    }
+    
+    public List<User> getUsers()
+    {
+        return em.createNamedQuery("User.all", User.class).getResultList();
     }
     
     public Optional<User> getUser(String username)

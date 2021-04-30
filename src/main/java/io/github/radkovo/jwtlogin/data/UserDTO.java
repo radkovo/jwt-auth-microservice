@@ -5,6 +5,8 @@
  */
 package io.github.radkovo.jwtlogin.data;
 
+import java.util.Set;
+
 /**
  * 
  * @author burgetr
@@ -19,8 +21,20 @@ public class UserDTO
     
     private String email;
     
+    private Set<String> roles;
+    
+    
     public UserDTO()
     {
+    }
+
+    public UserDTO(User user)
+    {
+        username = user.getUsername();
+        password = null;
+        name = user.getName();
+        email = user.getEmail();
+        roles = user.getRoles();
     }
 
     public String getUsername()
@@ -61,6 +75,16 @@ public class UserDTO
     public void setEmail(String email)
     {
         this.email = email;
+    }
+
+    public Set<String> getRoles()
+    {
+        return roles;
+    }
+
+    public void setRoles(Set<String> roles)
+    {
+        this.roles = roles;
     }
 
 }
