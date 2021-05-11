@@ -12,9 +12,9 @@ package io.github.radkovo.jwtlogin.data;
 public class ResultResponse
 {
     private String result;
-    private String param;
+    private Object param;
     
-    public ResultResponse(String result, String param)
+    public ResultResponse(String result, Object param)
     {
         this.result = result;
         this.param = param;
@@ -30,12 +30,12 @@ public class ResultResponse
         this.result = result;
     }
 
-    public String getParam()
+    public Object getParam()
     {
         return param;
     }
 
-    public void setParam(String param)
+    public void setParam(Object param)
     {
         this.param = param;
     }

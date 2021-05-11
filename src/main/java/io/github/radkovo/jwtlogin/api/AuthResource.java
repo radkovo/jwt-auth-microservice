@@ -1,5 +1,9 @@
 package io.github.radkovo.jwtlogin.api;
 
+import java.security.Principal;
+
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -15,6 +19,7 @@ import io.github.radkovo.jwtlogin.JwtTokenGenerator;
 import io.github.radkovo.jwtlogin.dao.UserService;
 import io.github.radkovo.jwtlogin.data.Credentials;
 import io.github.radkovo.jwtlogin.data.MessageResponse;
+import io.github.radkovo.jwtlogin.data.ResultResponse;
 import io.github.radkovo.jwtlogin.data.TokenResponse;
 import io.github.radkovo.jwtlogin.data.User;
 import io.github.radkovo.jwtlogin.data.UserDTO;
@@ -30,11 +35,27 @@ public class AuthResource
     private static final long TOKEN_DURATION = 7200; // token duration in seconds
     
     @Inject
+    Principal principal;
+    
+    @Inject
     UserService userService;
     
     @GET
     public String ping() {
         return "Ping OK";
+    }
+    
+    @GET
+    @Path("userInfo")
+    @PermitAll //TODO allow only for user & admin?
+    public Response getUserInfo()
+    {
+        String login = (principal != null) ? principal.getName() : "unknown";
+        User user = userService.getUser(login).orElse(null);
+        if (user != null)
+            return Response.ok(new ResultResponse("ok", new UserDTO(user))).build();
+        else
+            return Response.ok(new ResultResponse("unknown", null)).build();
     }
     
     @POST
