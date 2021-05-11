@@ -5,6 +5,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -38,6 +40,7 @@ public class AuthResource
     @POST
     @Path("login")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response login(Credentials credentials) 
     {
         if (credentials != null
@@ -64,26 +67,38 @@ public class AuthResource
     @POST
     @Path("register")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response registerUser(UserDTO data)
     {
         if (data.getUsername() != null && data.getPassword() != null)
         {
-            User user = userService.getUser(data.getUsername()).orElse(null);
-            if (user == null)
+            if (data.getUsername().length() >= 3
+                    && data.getPassword().length() >= 6
+                    && data.getUsername().matches("^[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9]$"))
             {
-                try {
-                    userService.createUser(data);
-                    return Response.ok(new MessageResponse("ok")).build();
-                } catch (Exception e) {
-                    return Response.status(Status.INTERNAL_SERVER_ERROR)
-                            .entity(e.getMessage())
+                User user = userService.getUser(data.getUsername()).orElse(null);
+                if (user == null)
+                {
+                    try {
+                        userService.createUser(data);
+                        return Response.ok(new MessageResponse("ok")).build();
+                    } catch (Exception e) {
+                        return Response.status(Status.INTERNAL_SERVER_ERROR)
+                                .entity(e.getMessage())
+                                .build();
+                    }
+                }
+                else
+                {
+                    return Response.status(Status.BAD_REQUEST)
+                            .entity(new MessageResponse("username already exists"))
                             .build();
                 }
             }
             else
             {
                 return Response.status(Status.BAD_REQUEST)
-                        .entity(new MessageResponse("username already exists"))
+                        .entity(new MessageResponse("Invalid username or password"))
                         .build();
             }
         }
@@ -93,7 +108,23 @@ public class AuthResource
                     .entity(new MessageResponse("username and password are required"))
                     .build();
         }
-
+    }
+    
+    @GET
+    @Path("checkUserId/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response userExists(@PathParam("userId") String userId)
+    {
+        if (userId != null)
+        {
+            User user = userService.getUser(userId).orElse(null);
+            if (user != null)
+                return Response.ok(new MessageResponse("yes")).build();
+            else
+                return Response.ok(new MessageResponse("no")).build();
+        }
+        else
+            return Response.ok(new MessageResponse("no")).build();
     }
     
 }
