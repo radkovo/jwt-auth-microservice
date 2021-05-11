@@ -2,3 +2,4 @@ mp.jwt.verify.publickey.location=file:/opt/jwtauth/publicKey.pem
 mp.jwt.verify.issuer=jwtauthserv
 jwtauth.admin.password=fuosab371a
 jwtauth.cors.origin=*
+jwtauth.captcha.secret=captcha-secret-key
