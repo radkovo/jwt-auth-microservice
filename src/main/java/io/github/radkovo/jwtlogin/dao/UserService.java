@@ -83,4 +83,19 @@ public class UserService
             return false;
     }
     
+    @Transactional
+    public User updateUser(String username, UserDTO dto)
+    {
+        User user = getUser(username).orElse(null);
+        if (user != null)
+        {
+            user.updateWith(dto);
+            em.merge(user);
+            em.flush();
+            return user;
+        }
+        else
+            return null;
+    }
+    
 }

@@ -60,6 +60,21 @@ public class User
         this.roles = Set.of();
     }
 
+    public void updateWith(UserDTO dto)
+    {
+        if (dto.getUsername() != null)
+            setUsername(dto.getUsername());
+        if (dto.getName() != null)
+            setName(dto.getName());
+        if (dto.getEmail() != null)
+            setEmail(dto.getEmail());
+        if (dto.getRoles() != null)
+        {
+            roles.clear();
+            roles.addAll(dto.getRoles());
+        }
+    }
+    
     public long getId()
     {
         return id;

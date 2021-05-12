@@ -12,15 +12,20 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import io.github.radkovo.jwtlogin.dao.UserService;
+import io.github.radkovo.jwtlogin.data.MessageResponse;
 import io.github.radkovo.jwtlogin.data.User;
 import io.github.radkovo.jwtlogin.data.UserDTO;
 
@@ -72,6 +77,38 @@ public class AdminResource
     {
         List<UserDTO> list = userService.getUsers().stream().map(u -> new UserDTO(u)).collect(Collectors.toList());
         return Response.ok(list).build();
+    }
+    
+    @GET
+    @Path("user/{username}")
+    @RolesAllowed("admin")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUser(@PathParam("username") String username)
+    {
+        User user = userService.getUser(username).orElse(null);
+        if (user != null)
+            return Response.ok(new UserDTO(user)).build();
+        else
+            return Response.status(Status.NOT_FOUND).entity(new MessageResponse("not found")).build();
+    }
+    
+    @PUT
+    @Path("user/{username}")
+    @RolesAllowed("admin")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateUser(@PathParam("username") String username, UserDTO userData)
+    {
+        if (username != null && userData != null)
+        {
+            User user = userService.updateUser(username, userData);
+            if (user != null)
+                return Response.ok(new UserDTO(user)).build();
+            else
+                return Response.status(Status.NOT_FOUND).entity(new MessageResponse("not found")).build();
+        }
+        else
+            return Response.status(Status.BAD_REQUEST).entity(new MessageResponse("invalid parametres")).build();
     }
     
 }
