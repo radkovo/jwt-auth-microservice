@@ -6,8 +6,11 @@ import static com.nimbusds.jwt.JWTClaimsSet.parse;
 import static java.lang.Thread.currentThread;
 import static net.minidev.json.parser.JSONParser.DEFAULT_PERMISSIVE_MODE;
 
+import java.net.URL;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Set;
@@ -53,24 +56,44 @@ public class JwtTokenGenerator {
                                             .type(JWT)
                                             .build(), parse(jwtJson));
         
-        signedJWT.sign(new RSASSASigner(readPrivateKey("/privateKey.pem")));
+        signedJWT.sign(new RSASSASigner(readPrivateKey()));
         
         return signedJWT.serialize();
     }
     
-    public static PrivateKey readPrivateKey(String resourceName) throws Exception {
+    private static PrivateKey readPrivateKey() throws Exception {
+        final String location = System.getProperty("mp.jwt.verify.publickey.location");
+        if (location == null)
+            return readPrivateKeyFromResource("/privateKey.pem");
+        else
+            return readPrivateKeyFromUrl(location);
+    }
+    
+    private static PrivateKey readPrivateKeyFromResource(String resourceName) throws Exception {
         byte[] byteBuffer = new byte[16384];
         int length = currentThread().getContextClassLoader()
                                     .getResource(resourceName)
                                     .openStream()
                                     .read(byteBuffer);
-        
+        return generateKeyFromBuffer(byteBuffer, length);
+    }
+
+    private static PrivateKey readPrivateKeyFromUrl(String urlString) throws Exception {
+        byte[] byteBuffer = new byte[16384];
+        int length = (new URL(urlString))
+                                    .openStream()
+                                    .read(byteBuffer);
+        return generateKeyFromBuffer(byteBuffer, length);
+    }
+
+    private static PrivateKey generateKeyFromBuffer(byte[] byteBuffer,
+            int length) throws InvalidKeySpecException, NoSuchAlgorithmException
+    {
         String key = new String(byteBuffer, 0, length).replaceAll("-----BEGIN (.*)-----", "")
                                                       .replaceAll("-----END (.*)----", "")
                                                       .replaceAll("\r\n", "")
                                                       .replaceAll("\n", "")
                                                       .trim();
-
         return KeyFactory.getInstance("RSA")
                          .generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key)));
     }
