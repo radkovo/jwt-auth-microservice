@@ -30,7 +30,7 @@ import net.minidev.json.parser.JSONParser;
  */
 public class JwtTokenGenerator {
 
-    public static String generateJWTString(String jsonResource, String username, long duration, Set<String> roles) throws Exception {
+    public static String generateJWTString(String jsonResource, String username, long duration, Set<String> roles, String privateKeyUrl) throws Exception {
         byte[] byteBuffer = new byte[16384];
         currentThread().getContextClassLoader()
                        .getResource(jsonResource)
@@ -56,17 +56,30 @@ public class JwtTokenGenerator {
                                             .type(JWT)
                                             .build(), parse(jwtJson));
         
-        signedJWT.sign(new RSASSASigner(readPrivateKey()));
+        signedJWT.sign(new RSASSASigner(readPrivateKey(privateKeyUrl)));
         
         return signedJWT.serialize();
     }
     
-    private static PrivateKey readPrivateKey() throws Exception {
-        final String location = System.getProperty("mp.jwt.verify.publickey.location");
-        if (location == null)
-            return readPrivateKeyFromResource("/privateKey.pem");
-        else
-            return readPrivateKeyFromUrl(location);
+    private static PrivateKey readPrivateKey(String location) {
+        PrivateKey key = null;
+        if (location == null || location.isEmpty()) {
+            try
+            {
+                key = readPrivateKeyFromResource("/privateKey.pem");
+            } catch (Exception e) {
+                System.err.println("ERROR: Couldn't read private key from classpath. jwtauth.privatekey.location should be specified.");
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                System.err.println("ERROR: Couldn't read private key from " + location);
+                key = readPrivateKeyFromUrl(location);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }                
+        }
+        return key;
     }
     
     private static PrivateKey readPrivateKeyFromResource(String resourceName) throws Exception {

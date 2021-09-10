@@ -3,7 +3,6 @@ package io.github.radkovo.jwtlogin.api;
 import java.security.Principal;
 
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -14,6 +13,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.github.radkovo.jwtlogin.JwtTokenGenerator;
 import io.github.radkovo.jwtlogin.dao.UserService;
@@ -39,6 +40,11 @@ public class AuthResource
     
     @Inject
     UserService userService;
+    
+    @Inject
+    @ConfigProperty(name = "jwtauth.privatekey.location", defaultValue = "")
+    String privateKeyLocation;
+    
     
     @GET
     public String ping() {
@@ -73,7 +79,7 @@ public class AuthResource
             {
                 User user = userService.getUser(credentials.getUsername()).orElse(null);
                 String token = JwtTokenGenerator.generateJWTString("/jwt-token.json", credentials.getUsername(), 
-                        TOKEN_DURATION, user.getRoles());
+                        TOKEN_DURATION, user.getRoles(), privateKeyLocation);
                 TokenResponse resp = new TokenResponse(token);
                 return Response.ok(resp).build();
             } catch (Exception e) {
