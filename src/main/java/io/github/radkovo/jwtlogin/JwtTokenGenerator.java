@@ -70,9 +70,9 @@ public class JwtTokenGenerator {
             }
         } else {
             try {
-                System.err.println("ERROR: Couldn't read private key from " + location);
                 key = readPrivateKeyFromUrl(location);
             } catch (Exception e) {
+                System.err.println("ERROR: Couldn't read private key from " + location);
                 e.printStackTrace();
             }                
         }
