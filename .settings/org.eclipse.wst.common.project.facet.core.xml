@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <faceted-project>
-  <runtime name="Payara Server 5 (5.2021.6)"/>
+  <runtime name="Payara Server 5 (5.2021.7)"/>
   <fixed facet="wst.jsdt.web"/>
   <installed facet="java" version="11"/>
   <installed facet="jst.web" version="4.0"/>
