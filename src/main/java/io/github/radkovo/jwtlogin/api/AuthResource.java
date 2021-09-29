@@ -78,7 +78,7 @@ public class AuthResource
             try
             {
                 User user = userService.getUser(credentials.getUsername()).orElse(null);
-                String token = JwtTokenGenerator.generateJWTString("/jwt-token.json", credentials.getUsername(), 
+                String token = JwtTokenGenerator.generateJWTString(credentials.getUsername(), 
                         TOKEN_DURATION, user.getRoles(), privateKeyLocation);
                 TokenResponse resp = new TokenResponse(token);
                 return Response.ok(resp).build();

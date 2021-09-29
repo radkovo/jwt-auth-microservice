@@ -7,6 +7,8 @@ import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.microprofile.jwt.Claims;
@@ -15,8 +17,6 @@ import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.shaded.json.JSONObject;
-import com.nimbusds.jose.shaded.json.parser.JSONParser;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -27,19 +27,14 @@ import com.nimbusds.jwt.SignedJWT;
  */
 public class JwtTokenGenerator {
 
-    public static String generateJWTString(String jsonResource, String username, long duration, Set<String> roles, String privateKeyUrl) throws Exception {
-        byte[] byteBuffer = new byte[16384];
-        Thread.currentThread().getContextClassLoader()
-                       .getResource(jsonResource)
-                       .openStream()
-                       .read(byteBuffer);
+    public static String generateJWTString(String username, long duration, Set<String> roles, String privateKeyUrl) throws Exception {
 
-        JSONParser parser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
-        JSONObject jwtJson = (JSONObject) parser.parse(byteBuffer);
-        
         long currentTimeInSecs = (System.currentTimeMillis() / 1000);
         long expirationTime = currentTimeInSecs + duration;
        
+        Map<String, Object> jwtJson = new HashMap<>();
+        jwtJson.put(Claims.iss.name(), "jwtauthserv");
+        jwtJson.put(Claims.jti.name(), "25");
         jwtJson.put(Claims.iat.name(), currentTimeInSecs);
         jwtJson.put(Claims.auth_time.name(), currentTimeInSecs);
         jwtJson.put(Claims.exp.name(), expirationTime);
