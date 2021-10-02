@@ -98,4 +98,19 @@ public class UserService
             return null;
     }
     
+    @Transactional
+    public User updateUserPassword(String username, String password)
+    {
+        User user = getUser(username).orElse(null);
+        if (user != null)
+        {
+            user.setPassword(passwordHasher.generate(password.toCharArray()));
+            em.merge(user);
+            em.flush();
+            return user;
+        }
+        else
+            return null;
+    }
+    
 }
