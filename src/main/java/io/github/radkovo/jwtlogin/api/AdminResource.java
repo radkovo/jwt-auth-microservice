@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
+import io.github.radkovo.jwtlogin.dao.LogService;
 import io.github.radkovo.jwtlogin.dao.UserService;
 import io.github.radkovo.jwtlogin.data.MessageResponse;
 import io.github.radkovo.jwtlogin.data.PasswordDTO;
@@ -46,6 +47,9 @@ public class AdminResource
     
     @Inject
     UserService userService;
+    
+    @Inject
+    LogService logService;
 
     @GET
     @Path("init")
@@ -148,6 +152,16 @@ public class AdminResource
         }
         else
             return Response.status(Status.BAD_REQUEST).entity(new MessageResponse("invalid parametres")).build();
+    }
+    
+    @GET
+    @Path("log")
+    @RolesAllowed("admin")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLog()
+    {
+        var entries = logService.getEntries();
+        return Response.ok(entries).build();
     }
     
 }

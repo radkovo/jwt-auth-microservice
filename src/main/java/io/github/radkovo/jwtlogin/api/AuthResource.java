@@ -17,8 +17,10 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.github.radkovo.jwtlogin.JwtTokenGenerator;
+import io.github.radkovo.jwtlogin.dao.LogService;
 import io.github.radkovo.jwtlogin.dao.UserService;
 import io.github.radkovo.jwtlogin.data.Credentials;
+import io.github.radkovo.jwtlogin.data.LogEntry;
 import io.github.radkovo.jwtlogin.data.MessageResponse;
 import io.github.radkovo.jwtlogin.data.ResultResponse;
 import io.github.radkovo.jwtlogin.data.TokenResponse;
@@ -40,6 +42,9 @@ public class AuthResource
     
     @Inject
     UserService userService;
+    
+    @Inject
+    LogService logService;
     
     @Inject
     @ConfigProperty(name = "jwtauth.privatekey.location", defaultValue = "")
@@ -81,12 +86,14 @@ public class AuthResource
                 String token = JwtTokenGenerator.generateJWTString(credentials.getUsername(), 
                         TOKEN_DURATION, user.getRoles(), privateKeyLocation);
                 TokenResponse resp = new TokenResponse(token);
+                logService.log(new LogEntry("auth", "login", user.getUsername(), "Successfull login"));
                 return Response.ok(resp).build();
             } catch (Exception e) {
                 return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e).build();
             }
             
         } else {
+            logService.log(new LogEntry("auth", "login", credentials.getUsername(), "Invalid login"));
             return Response.status(Status.FORBIDDEN).entity(new MessageResponse("invalid login")).build();
         }
     }
@@ -108,6 +115,7 @@ public class AuthResource
                 {
                     try {
                         userService.createUser(data);
+                        logService.log(new LogEntry("auth", "register", data.getUsername(), "User registration"));
                         return Response.ok(new MessageResponse("ok")).build();
                     } catch (Exception e) {
                         return Response.status(Status.INTERNAL_SERVER_ERROR)
