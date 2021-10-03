@@ -113,4 +113,18 @@ public class UserService
             return null;
     }
     
+    @Transactional
+    public User deleteUser(String username)
+    {
+        User user = getUser(username).orElse(null);
+        if (user != null)
+        {
+            em.remove(user);
+            em.flush();
+            return user;
+        }
+        else
+            return null;
+    }
+    
 }
