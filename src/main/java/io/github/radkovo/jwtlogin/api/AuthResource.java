@@ -10,7 +10,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -19,9 +24,11 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import io.github.radkovo.jwtlogin.JwtTokenGenerator;
 import io.github.radkovo.jwtlogin.dao.LogService;
 import io.github.radkovo.jwtlogin.dao.UserService;
+import io.github.radkovo.jwtlogin.data.CaptchaResponse;
 import io.github.radkovo.jwtlogin.data.Credentials;
 import io.github.radkovo.jwtlogin.data.LogEntry;
 import io.github.radkovo.jwtlogin.data.MessageResponse;
+import io.github.radkovo.jwtlogin.data.RegisterUserDTO;
 import io.github.radkovo.jwtlogin.data.ResultResponse;
 import io.github.radkovo.jwtlogin.data.TokenResponse;
 import io.github.radkovo.jwtlogin.data.User;
@@ -50,6 +57,10 @@ public class AuthResource
     @ConfigProperty(name = "jwtauth.privatekey.location", defaultValue = "")
     String privateKeyLocation;
     
+    @Inject
+    @ConfigProperty(name = "jwtauth.captcha.secret", defaultValue = "")
+    String captchaSecret;
+
     
     @GET
     public String ping() {
@@ -102,31 +113,41 @@ public class AuthResource
     @Path("register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerUser(UserDTO data)
+    public Response registerUser(RegisterUserDTO data)
     {
-        if (data.getUsername() != null && data.getPassword() != null)
+        if (data.getUsername() != null && data.getPassword() != null && data.getCaptchaToken() != null)
         {
             if (data.getUsername().length() >= 3
                     && data.getPassword().length() >= 6
                     && data.getUsername().matches("^[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9]$"))
             {
-                User user = userService.getUser(data.getUsername()).orElse(null);
-                if (user == null)
+                CaptchaResponse resp = checkToken(data.getCaptchaToken());
+                if (resp.isSuccess())
                 {
-                    try {
-                        userService.createUser(data);
-                        logService.log(new LogEntry("auth", "register", data.getUsername(), "User registration"));
-                        return Response.ok(new MessageResponse("ok")).build();
-                    } catch (Exception e) {
-                        return Response.status(Status.INTERNAL_SERVER_ERROR)
-                                .entity(e.getMessage())
+                    User user = userService.getUser(data.getUsername()).orElse(null);
+                    if (user == null)
+                    {
+                        try {
+                            userService.createUser(data);
+                            logService.log(new LogEntry("auth", "register", data.getUsername(), "User registration"));
+                            return Response.ok(new MessageResponse("ok")).build();
+                        } catch (Exception e) {
+                            return Response.status(Status.INTERNAL_SERVER_ERROR)
+                                    .entity(e.getMessage())
+                                    .build();
+                        }
+                    }
+                    else
+                    {
+                        return Response.status(Status.BAD_REQUEST)
+                                .entity(new MessageResponse("username already exists"))
                                 .build();
                     }
                 }
                 else
                 {
                     return Response.status(Status.BAD_REQUEST)
-                            .entity(new MessageResponse("username already exists"))
+                            .entity(new MessageResponse("captcha verification failed"))
                             .build();
                 }
             }
@@ -162,4 +183,17 @@ public class AuthResource
             return Response.ok(new MessageResponse("no")).build();
     }
     
+    //===============================================================================================================
+
+    private CaptchaResponse checkToken(String token)
+    {
+        MultivaluedMap<String, String> map = new MultivaluedHashMap<String, String>();
+        map.putSingle("secret", captchaSecret);
+        map.putSingle("response", token);
+        Client client = ClientBuilder.newClient();
+        CaptchaResponse response = client.target("https://www.google.com/recaptcha/api/siteverify")
+                .request().post(Entity.form(map), CaptchaResponse.class);
+        return response;
+    }
+
 }
