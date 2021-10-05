@@ -4,6 +4,7 @@ import java.security.Principal;
 
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -33,6 +34,7 @@ import io.github.radkovo.jwtlogin.data.ResultResponse;
 import io.github.radkovo.jwtlogin.data.TokenResponse;
 import io.github.radkovo.jwtlogin.data.User;
 import io.github.radkovo.jwtlogin.data.UserDTO;
+import io.github.radkovo.jwtlogin.service.MailerService;
 
 
 /**
@@ -52,6 +54,9 @@ public class AuthResource
     
     @Inject
     LogService logService;
+    
+    @Inject
+    MailerService mailer;
     
     @Inject
     @ConfigProperty(name = "jwtauth.privatekey.location", defaultValue = "")
@@ -162,6 +167,52 @@ public class AuthResource
         {
             return Response.status(Status.BAD_REQUEST)
                     .entity(new MessageResponse("username and password are required"))
+                    .build();
+        }
+    }
+    
+    @POST
+    @Path("resetPassword")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response resetPassword(RegisterUserDTO data)
+    {
+        if (data.getUsername() != null && data.getCaptchaToken() != null)
+        {
+            CaptchaResponse resp = checkToken(data.getCaptchaToken());
+            if (resp.isSuccess())
+            {
+                User user = userService.getUser(data.getUsername()).orElse(null);
+                if (user != null && user.getEmail() != null)
+                {
+                    try
+                    {
+                        mailer.sendPasswordReset(user.getEmail());
+                        return Response.ok(new MessageResponse("ok")).build();
+                    } catch (MessagingException e) {
+                        return Response.status(Status.INTERNAL_SERVER_ERROR)
+                                .entity(new MessageResponse(e.getMessage()))
+                                .build();
+                    }
+                }
+                else
+                {
+                    return Response.status(Status.BAD_REQUEST)
+                            .entity(new MessageResponse("We are sorry, we don't know such user"))
+                            .build();
+                }
+            }
+            else
+            {
+                return Response.status(Status.BAD_REQUEST)
+                        .entity(new MessageResponse("captcha verification failed"))
+                        .build();
+            }
+        }
+        else
+        {
+            return Response.status(Status.BAD_REQUEST)
+                    .entity(new MessageResponse("username is required (may contain e-mail too)"))
                     .build();
         }
     }
