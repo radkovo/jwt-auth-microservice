@@ -22,6 +22,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import io.github.radkovo.jwtlogin.data.PasswordChallenge;
+
 /**
  * 
  * @author burgetr
@@ -49,10 +51,28 @@ public class MailerService
     @ConfigProperty(name = "jwtauth.mail.sender")
     String fromEmail;
     
+    @Inject
+    @ConfigProperty(name = "jwtauth.reset.url")
+    String resetUrl;
+    
+    @Inject
+    @ConfigProperty(name = "jwtauth.product")
+    String productName;
+    
 
-    public void sendPasswordReset(String toEmail) throws MessagingException
+    public void sendPasswordReset(PasswordChallenge challenge) throws MessagingException
     {
-        sendEmail(toEmail, "FitLayout password reset", "Do you need to reset your password?");
+        final String subject = productName + " password reset";
+        final String link = resetUrl.replace("{}", challenge.getHash());
+        final String message = 
+                "Dear " + productName + " user,\n\n" +
+                "someone (probably you) has requested a password reset for " + productName + ". " +
+                "If you wish to reset your password, please click the following link:\n\n" +
+                link + "\n\n" +
+                "If it was not you, you may safely ignore this message.\n\n" +
+                "Best regards\n" + 
+                "Your " + productName + " team";
+        sendEmail(challenge.getUser().getEmail(), subject, message);
     }
     
     public void sendEmail(String toEmail, String subject, String text) throws MessagingException
@@ -73,13 +93,14 @@ public class MailerService
         Properties properties = new Properties();
         properties.put("mail.smtp.host", smtpHost);
         properties.put("mail.smtp.port", Integer.valueOf(smtpPort));
-        if (!smtpUsername.isPresent() && !smtpPassword.isPresent())
+        if (!smtpUsername.isPresent() || !smtpPassword.isPresent())
         {
             properties.put("mail.smtp.auth", false);
         }
         else
         {
-            properties.put("mail.smtp.auth", false);
+            properties.put("mail.smtp.auth", true);
+            properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory"); 
             //properties.put("mail.smtp.starttls.enable", false);
             authenticator = new Authenticator() {
                 private PasswordAuthentication pa = new PasswordAuthentication(smtpUsername.get(), smtpPassword.get());

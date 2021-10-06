@@ -1,5 +1,6 @@
 mp.jwt.verify.publickey.location=file:/opt/jwtauth/publicKey.pem
 mp.jwt.verify.issuer=jwtauthserv
+jwtauth.product=JWTAuth
 jwtauth.admin.password=fuosab371a
 jwtauth.cors.origin=*
 jwtauth.captcha.secret=captcha-secret-key
@@ -9,3 +10,4 @@ jwtauth.smtp.port=25
 #jwtauth.smtp.username=username
 #jwtauth.smtp.password=password
 jwtauth.mail.sender=noreply@configure.me
+jwtauth.reset.url=https://set.frontend.url/auth/#/reset/{}

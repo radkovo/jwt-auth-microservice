@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.github.radkovo.jwtlogin.Roles;
+import io.github.radkovo.jwtlogin.data.PasswordChallenge;
 import io.github.radkovo.jwtlogin.data.User;
 import io.github.radkovo.jwtlogin.data.UserDTO;
 
@@ -119,12 +120,41 @@ public class UserService
         User user = getUser(username).orElse(null);
         if (user != null)
         {
+            clearPasswordChallenges(user);
             em.remove(user);
             em.flush();
             return user;
         }
         else
             return null;
+    }
+
+    //=====================================================================================
+    
+    @Transactional
+    public PasswordChallenge createPasswordChallenge(User user)
+    {
+        clearPasswordChallenges(user);
+        PasswordChallenge c = new PasswordChallenge(user);
+        em.merge(c);
+        em.flush();
+        return c;
+    }
+    
+    public Optional<PasswordChallenge> findChallenge(String hash)
+    {
+        return em.createNamedQuery("PasswordChallenge.byHash", PasswordChallenge.class)
+                 .setParameter("hash", hash)
+                 .getResultList()
+                 .stream()
+                 .findFirst();
+    }
+
+    public void clearPasswordChallenges(User user)
+    {
+        em.createNamedQuery("PasswordChallenge.clearUser")
+            .setParameter("userId", user.getId())
+            .executeUpdate();
     }
     
 }

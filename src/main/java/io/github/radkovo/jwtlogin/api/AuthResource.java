@@ -29,6 +29,7 @@ import io.github.radkovo.jwtlogin.data.CaptchaResponse;
 import io.github.radkovo.jwtlogin.data.Credentials;
 import io.github.radkovo.jwtlogin.data.LogEntry;
 import io.github.radkovo.jwtlogin.data.MessageResponse;
+import io.github.radkovo.jwtlogin.data.PasswordChallenge;
 import io.github.radkovo.jwtlogin.data.RegisterUserDTO;
 import io.github.radkovo.jwtlogin.data.ResultResponse;
 import io.github.radkovo.jwtlogin.data.TokenResponse;
@@ -172,10 +173,10 @@ public class AuthResource
     }
     
     @POST
-    @Path("resetPassword")
+    @Path("resetPasswordChallenge")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response resetPassword(RegisterUserDTO data)
+    public Response resetPasswordChallenge(RegisterUserDTO data)
     {
         if (data.getUsername() != null && data.getCaptchaToken() != null)
         {
@@ -187,7 +188,8 @@ public class AuthResource
                 {
                     try
                     {
-                        mailer.sendPasswordReset(user.getEmail());
+                        PasswordChallenge challenge = userService.createPasswordChallenge(user);
+                        mailer.sendPasswordReset(challenge);
                         return Response.ok(new MessageResponse("ok")).build();
                     } catch (MessagingException e) {
                         return Response.status(Status.INTERNAL_SERVER_ERROR)
@@ -213,6 +215,69 @@ public class AuthResource
         {
             return Response.status(Status.BAD_REQUEST)
                     .entity(new MessageResponse("username is required (may contain e-mail too)"))
+                    .build();
+        }
+    }
+    
+    @GET
+    @Path("verifyChallenge/{hash}")
+    public Response verifyChallenge(@PathParam(value = "hash") String hash)
+    {
+        if (hash != null)
+        {
+            PasswordChallenge cal = userService.findChallenge(hash).orElse(null);
+            if (cal != null)
+            {
+                return Response.ok(new UserDTO(cal.getUser())).build();
+            }
+            else
+            {
+                return Response.status(Status.NOT_FOUND).entity(new MessageResponse("Not found")).build();
+            }
+        }
+        else
+        {
+            return Response.status(Status.BAD_REQUEST)
+                    .entity(new MessageResponse("hash code missing"))
+                    .build();
+        }
+    }
+    
+    @POST
+    @Path("resetPassword")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response resetPassword(RegisterUserDTO data)
+    {
+        if (data.getUsername() != null && data.getPassword() != null && data.getCaptchaToken() != null)
+        {
+            PasswordChallenge cal = userService.findChallenge(data.getCaptchaToken()).orElse(null);
+            if (cal != null && data.getUsername().equals(cal.getUser().getUsername()))
+            {
+                User user = cal.getUser();
+                if (user != null)
+                {
+                    userService.updateUserPassword(user.getUsername(), data.getPassword());
+                    return Response.ok(new MessageResponse("ok")).build();
+                }
+                else
+                {
+                    return Response.status(Status.BAD_REQUEST)
+                            .entity(new MessageResponse("We are sorry, we don't know such user"))
+                            .build();
+                }
+            }
+            else
+            {
+                return Response.status(Status.BAD_REQUEST)
+                        .entity(new MessageResponse("verification failed"))
+                        .build();
+            }
+        }
+        else
+        {
+            return Response.status(Status.BAD_REQUEST)
+                    .entity(new MessageResponse("username, password and challenge code required"))
                     .build();
         }
     }
