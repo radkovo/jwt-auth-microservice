@@ -26,6 +26,8 @@ import io.github.radkovo.jwtlogin.data.UserDTO;
 public class UserService 
 {
     private static final Set<String> defaultRoles = Set.of(Roles.USER);
+    private static final Set<String> adminRoles = Set.of(Roles.ADMIN, Roles.USER);
+    private static final String adminUsername = "admin";
     
     @PersistenceContext(unitName = "usersPU")
     EntityManager em;
@@ -52,10 +54,10 @@ public class UserService
     @Transactional
     public User createDefaultAdmin()
     {
-        User newUser = new User("admin",
+        User newUser = new User(adminUsername,
                 passwordHasher.generate(defaultAdminPassword.toCharArray()),
                 "", "");
-        newUser.setRoles(Set.of(Roles.ADMIN));
+        newUser.setRoles(adminRoles);
         em.persist(newUser);
         em.flush();
         return newUser;
