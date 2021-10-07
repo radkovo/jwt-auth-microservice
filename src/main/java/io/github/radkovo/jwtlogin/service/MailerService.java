@@ -69,6 +69,7 @@ public class MailerService
                 "someone (probably you) has requested a password reset for " + productName + ". " +
                 "If you wish to reset your password, please click the following link:\n\n" +
                 link + "\n\n" +
+                "Your user ID is " + challenge.getUser().getUsername() + ".\n\n" +
                 "If it was not you, you may safely ignore this message.\n\n" +
                 "Best regards\n" + 
                 "Your " + productName + " team";

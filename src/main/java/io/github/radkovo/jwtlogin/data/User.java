@@ -25,7 +25,8 @@ import javax.persistence.ElementCollection;
 @Table(name = "users")
 @NamedQueries({
     @NamedQuery(name = "User.all", query = "select us from User us order by us.id"),
-    @NamedQuery(name = "User.byUsername", query = "select us from User us where us.username = :username")
+    @NamedQuery(name = "User.byUsername", query = "select us from User us where us.username = :username"),
+    @NamedQuery(name = "User.byEmail", query = "select us from User us where us.email = :email")
 })
 public class User
 {

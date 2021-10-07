@@ -77,6 +77,15 @@ public class UserService
                  .findFirst();
     }
 
+    public Optional<User> getUserByEmail(String email)
+    {
+        return em.createNamedQuery("User.byEmail", User.class)
+                 .setParameter("email", email)
+                 .getResultList()
+                 .stream()
+                 .findFirst();
+    }
+
     public boolean verifyUser(String username, String password)
     {
         User user = getUser(username).orElse(null);

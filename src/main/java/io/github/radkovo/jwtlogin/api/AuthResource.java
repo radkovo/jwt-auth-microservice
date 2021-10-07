@@ -184,6 +184,8 @@ public class AuthResource
             if (resp.isSuccess())
             {
                 User user = userService.getUser(data.getUsername()).orElse(null);
+                if (user == null)
+                    user = userService.getUserByEmail(data.getUsername()).orElse(null);
                 if (user != null && user.getEmail() != null)
                 {
                     try
