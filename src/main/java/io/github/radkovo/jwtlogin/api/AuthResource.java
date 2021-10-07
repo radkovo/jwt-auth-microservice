@@ -232,7 +232,7 @@ public class AuthResource
             }
             else
             {
-                return Response.status(Status.NOT_FOUND).entity(new MessageResponse("Not found")).build();
+                return Response.status(Status.NOT_FOUND).entity(new MessageResponse("Invalid or expired reset code")).build();
             }
         }
         else
@@ -258,6 +258,7 @@ public class AuthResource
                 if (user != null)
                 {
                     userService.updateUserPassword(user.getUsername(), data.getPassword());
+                    userService.clearPasswordChallenges(user);
                     return Response.ok(new MessageResponse("ok")).build();
                 }
                 else
