@@ -190,6 +190,7 @@ public class AuthResource
                     {
                         PasswordChallenge challenge = userService.createPasswordChallenge(user);
                         mailer.sendPasswordReset(challenge);
+                        logService.log(new LogEntry("auth", "recover", data.getUsername(), "Password recovery request"));
                         return Response.ok(new MessageResponse("ok")).build();
                     } catch (MessagingException e) {
                         return Response.status(Status.INTERNAL_SERVER_ERROR)
@@ -259,6 +260,7 @@ public class AuthResource
                 {
                     userService.updateUserPassword(user.getUsername(), data.getPassword());
                     userService.clearPasswordChallenges(user);
+                    logService.log(new LogEntry("auth", "reset", data.getUsername(), "Password reset"));
                     return Response.ok(new MessageResponse("ok")).build();
                 }
                 else
