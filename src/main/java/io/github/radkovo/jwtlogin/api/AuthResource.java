@@ -101,7 +101,7 @@ public class AuthResource
             {
                 User user = userService.getUser(credentials.getUsername()).orElse(null);
                 String token = JwtTokenGenerator.generateJWTString(credentials.getUsername(), 
-                        TOKEN_DURATION, user.getRoles(), privateKeyLocation);
+                        user.getEmail(), TOKEN_DURATION, user.getRoles(), privateKeyLocation);
                 TokenResponse resp = new TokenResponse(token);
                 logService.log(new LogEntry("auth", "login", user.getUsername(), "Successfull login"));
                 return Response.ok(resp).build();
