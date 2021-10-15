@@ -195,8 +195,9 @@ public class AuthResource
                         logService.log(new LogEntry("auth", "recover", data.getUsername(), "Password recovery request"));
                         return Response.ok(new MessageResponse("ok")).build();
                     } catch (MessagingException e) {
+                        e.printStackTrace();
                         return Response.status(Status.INTERNAL_SERVER_ERROR)
-                                .entity(new MessageResponse(e.getMessage()))
+                                .entity(new MessageResponse("E-mail sending failed"))
                                 .build();
                     }
                 }
