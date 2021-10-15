@@ -27,7 +27,7 @@ import com.nimbusds.jwt.SignedJWT;
  */
 public class JwtTokenGenerator {
 
-    public static String generateJWTString(String username, long duration, Set<String> roles, String privateKeyUrl) throws Exception {
+    public static String generateJWTString(String username, String email, long duration, Set<String> roles, String privateKeyUrl) throws Exception {
 
         long currentTimeInSecs = (System.currentTimeMillis() / 1000);
         long expirationTime = currentTimeInSecs + duration;
@@ -40,6 +40,8 @@ public class JwtTokenGenerator {
         jwtJson.put(Claims.exp.name(), expirationTime);
         jwtJson.put(Claims.sub.name(), username);
         jwtJson.put(Claims.upn.name(), username);
+        if (email != null && !email.isBlank())
+            jwtJson.put(Claims.email.name(), email);
         jwtJson.put(Claims.groups.name(), roles);
         
         SignedJWT signedJWT = new SignedJWT(new JWSHeader
