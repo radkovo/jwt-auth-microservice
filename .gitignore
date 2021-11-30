@@ -2,3 +2,4 @@
 target/
 privateKey.pem
 microprofile-config.properties
+.factorypath
