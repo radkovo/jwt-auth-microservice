@@ -1,5 +1,12 @@
+/**/bin
+/**/target
+/dependency-reduced-pom.xml
 *~
-target/
+.metadata/
+.settings/
+.apt*/
+.project
+.classpath
+.factorypath
 privateKey.pem
 microprofile-config.properties
-.factorypath
