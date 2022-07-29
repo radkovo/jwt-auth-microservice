@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>com.nimbusds</groupId>
 			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>9.8.1</version> <!-- for Payara 2021.7 -->
+			<version>9.8.1</version> <!-- for Payara 2022.2 -->
 		</dependency>
 	</dependencies>
 	
@@ -47,7 +47,7 @@
 				<artifactId>payara-micro-maven-plugin</artifactId>
 				<version>1.4.0</version>
 				<configuration>
-					<payaraVersion>5.2021.7</payaraVersion>
+					<payaraVersion>5.2022.2</payaraVersion>
 					<deployWar>true</deployWar>
 					<commandLineOptions>
 						<option>
