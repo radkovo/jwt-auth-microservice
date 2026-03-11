@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.security.enterprise.identitystore.Pbkdf2PasswordHash;
-import javax.transaction.Transactional;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.security.enterprise.identitystore.Pbkdf2PasswordHash;
+import jakarta.transaction.Transactional;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 

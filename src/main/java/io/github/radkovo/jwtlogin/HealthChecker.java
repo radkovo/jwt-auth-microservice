@@ -3,7 +3,7 @@
  */
 package io.github.radkovo.jwtlogin;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;

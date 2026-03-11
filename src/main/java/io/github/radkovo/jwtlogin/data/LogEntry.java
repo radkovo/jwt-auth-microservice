@@ -7,15 +7,15 @@ package io.github.radkovo.jwtlogin.data;
 
 import java.util.Date;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.GeneratedValue;
-import static javax.persistence.GenerationType.IDENTITY;
-import javax.persistence.Temporal;
-import static javax.persistence.TemporalType.TIMESTAMP;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.GeneratedValue;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import jakarta.persistence.Temporal;
+import static jakarta.persistence.TemporalType.TIMESTAMP;
+import jakarta.persistence.Table;
 
 /**
  * 
