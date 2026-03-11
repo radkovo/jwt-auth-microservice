@@ -28,7 +28,13 @@
 		<dependency>
 			<groupId>com.nimbusds</groupId>
 			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>9.8.1</version> <!-- for Payara 2022.2 -->
+			<version>9.37.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>2.2.224</version>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 	
@@ -47,31 +53,20 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>2.22.2</version>
 			</plugin>
-			<plugin>
-				<groupId>fish.payara.maven.plugins</groupId>
-				<artifactId>payara-micro-maven-plugin</artifactId>
-				<version>2.5</version>
-				<configuration>
-					<payaraVersion>6.2024.6</payaraVersion>
-					<deployWar>true</deployWar>
-					<commandLineOptions>
-						<option>
-							<key>--port</key>
-							<value>8088</value>
-						</option>
-						<option>
-							<key>--autoBindHttp</key>
-						</option>
-					</commandLineOptions>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>bundle</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>3.12.0</version>
+                <configuration>
+                    <copyDependencies>
+                        <location>${project.build.directory}/liberty/wlp/usr/shared/resources/h2</location>
+                        <dependency>
+							<groupId>com.h2database</groupId>
+                            <artifactId>h2</artifactId>
+                        </dependency>
+                    </copyDependencies>
+                </configuration>
+            </plugin>
 		</plugins>
 		<finalName>jwt-auth</finalName>
 	</build>

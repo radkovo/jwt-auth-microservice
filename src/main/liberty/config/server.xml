@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="JWT Auth Microservice">
+
+    <featureManager>
+        <!-- MicroProfile 7.0: includes CDI 4.0, JAX-RS 3.1, JSON-B 3.0, mpConfig 3.1, mpJwt 2.1, mpHealth 4.0, etc. -->
+        <feature>microProfile-7.0</feature>
+        <!-- Jakarta EE additions not in MicroProfile -->
+        <feature>persistence-3.1</feature>
+        <feature>mail-2.1</feature>
+        <feature>jdbc-4.3</feature>
+        <feature>appSecurity-5.0</feature>
+    </featureManager>
+
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="*"
+                  httpPort="8088"
+                  httpsPort="-1"/>
+
+    <webApplication location="jwt-auth.war" contextRoot="/"/>
+
+    <!-- H2 JDBC driver from shared resources (copied by maven-dependency-plugin during build) -->
+    <library id="H2Lib">
+        <fileset dir="${shared.resource.dir}/h2" includes="*.jar"/>
+    </library>
+
+    <!-- File-based H2 datasource (mirrors the original Payara/GlassFish configuration) -->
+    <dataSource id="userdb" jndiName="jdbc/userdb" type="javax.sql.DataSource">
+        <jdbcDriver libraryRef="H2Lib"/>
+        <properties URL="jdbc:h2:file:/opt/storage/users" user="sa" password=""/>
+    </dataSource>
+
+</server>
