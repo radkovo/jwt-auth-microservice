@@ -9,14 +9,23 @@
         <feature>mail-2.1</feature>
         <feature>jdbc-4.3</feature>
         <feature>appSecurity-5.0</feature>
+		<feature>localConnector-1.0</feature>
     </featureManager>
 
+	<keyStore password="1hfkdm984293dasldhjj@#">
+	</keyStore>
+
+    <basicRegistry id="basic" realm="BasicRealm">
+        <!--
+        <user name="yourUserName" password="" />
+        -->
+    </basicRegistry>
+
     <httpEndpoint id="defaultHttpEndpoint"
-                  host="*"
-                  httpPort="8088"
+                  httpPort="8080"
                   httpsPort="-1"/>
 
-    <webApplication location="jwt-auth.war" contextRoot="/"/>
+    <webApplication location="jwt-auth.war" contextRoot="/jwt-auth"/>
 
     <!-- H2 JDBC driver from shared resources (copied by maven-dependency-plugin during build) -->
     <library id="H2Lib">
@@ -24,7 +33,7 @@
     </library>
 
     <!-- File-based H2 datasource (mirrors the original Payara/GlassFish configuration) -->
-    <dataSource id="userdb" jndiName="jdbc/userdb" type="javax.sql.DataSource">
+    <dataSource id="userdb" jndiName="jdbc/userdb">
         <jdbcDriver libraryRef="H2Lib"/>
         <properties URL="jdbc:h2:file:/opt/storage/users" user="sa" password=""/>
     </dataSource>

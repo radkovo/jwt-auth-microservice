@@ -7,9 +7,10 @@ package io.github.radkovo.jwtlogin.dao;
 
 import java.util.List;
 
-import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 import io.github.radkovo.jwtlogin.data.LogEntry;
 
@@ -17,7 +18,8 @@ import io.github.radkovo.jwtlogin.data.LogEntry;
  * 
  * @author burgetr
  */
-@Stateless
+@ApplicationScoped
+@Transactional
 public class LogService
 {
     @PersistenceContext(unitName = "usersPU")

@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 
 import java.util.Set;
@@ -31,7 +32,7 @@ import jakarta.persistence.ElementCollection;
 public class User
 {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
     
     @Column(nullable = false, unique = true)

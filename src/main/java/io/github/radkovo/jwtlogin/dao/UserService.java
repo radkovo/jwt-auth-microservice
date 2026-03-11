@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -22,7 +22,8 @@ import io.github.radkovo.jwtlogin.data.UserDTO;
  *
  * @author burgetr
  */
-@Stateless
+@ApplicationScoped
+@Transactional
 public class UserService 
 {
     private static final Set<String> defaultRoles = Set.of(Roles.USER);

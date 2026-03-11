@@ -12,7 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.GeneratedValue;
-import static jakarta.persistence.GenerationType.IDENTITY;
+import static jakarta.persistence.GenerationType.SEQUENCE;
 import jakarta.persistence.Temporal;
 import static jakarta.persistence.TemporalType.TIMESTAMP;
 import jakarta.persistence.Table;
@@ -29,7 +29,7 @@ import jakarta.persistence.Table;
 public class LogEntry
 {
     @Id
-    @GeneratedValue(strategy = IDENTITY)
+    @GeneratedValue(strategy = SEQUENCE)
     private long id;
     @Temporal(TIMESTAMP)
     private Date timestamp;
