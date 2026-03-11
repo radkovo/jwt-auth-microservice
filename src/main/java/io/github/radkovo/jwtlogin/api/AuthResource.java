@@ -45,7 +45,7 @@ import io.github.radkovo.jwtlogin.service.MailerService;
 @Path("auth")
 public class AuthResource 
 {
-    private static final long TOKEN_DURATION = 7200; // token duration in seconds
+    public static final long TOKEN_DURATION = 7200; // token duration in seconds
     
     @Inject
     Principal principal;

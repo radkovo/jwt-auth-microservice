@@ -23,12 +23,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
+import io.github.radkovo.jwtlogin.JwtTokenGenerator;
 import io.github.radkovo.jwtlogin.dao.LogService;
 import io.github.radkovo.jwtlogin.dao.UserService;
+import io.github.radkovo.jwtlogin.data.LogEntry;
 import io.github.radkovo.jwtlogin.data.MessageResponse;
 import io.github.radkovo.jwtlogin.data.PasswordDTO;
+import io.github.radkovo.jwtlogin.data.TokenResponse;
 import io.github.radkovo.jwtlogin.data.User;
 import io.github.radkovo.jwtlogin.data.UserDTO;
 
@@ -51,6 +55,10 @@ public class AdminResource
     @Inject
     LogService logService;
 
+    @Inject
+    @ConfigProperty(name = "jwtauth.privatekey.location", defaultValue = "")
+    String privateKeyLocation;
+    
     @GET
     @Path("init")
     @Produces(MediaType.TEXT_PLAIN)
@@ -152,6 +160,33 @@ public class AdminResource
         }
         else
             return Response.status(Status.BAD_REQUEST).entity(new MessageResponse("invalid parametres")).build();
+    }
+    
+    @GET
+    @Path("loginAs/{username}")
+    @RolesAllowed("admin")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response loginAs(@PathParam("username") String username)
+    {
+        try
+        {
+            User user = userService.getUser(username).orElse(null);
+            if (user!= null)
+            {
+                String token = JwtTokenGenerator.generateJWTString(username, 
+                        user.getEmail(), AuthResource.TOKEN_DURATION, user.getRoles(), privateKeyLocation);
+                TokenResponse resp = new TokenResponse(token);
+                logService.log(new LogEntry("auth", "login", user.getUsername(), "Admin login as user"));
+                return Response.ok(resp).build();
+            }
+            else
+            {
+                return Response.status(Status.NOT_FOUND).entity(new MessageResponse("user not found")).build();
+            }
+        } catch (Exception e) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e).build();
+        }
+        
     }
     
     @GET
